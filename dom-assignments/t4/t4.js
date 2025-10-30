@@ -771,3 +771,53 @@ const restaurants = [
 ];
 
 // your code here
+const table = document.querySelector('#table');
+
+const distances = [];
+
+const options = {
+  enableHighAccuracy: true,
+  timeout: 5000,
+  maximumAge: 0,
+};
+
+function success(pos) {
+  const crd = pos.coords;
+
+  // Printing location information to the console
+  console.log('Your current position is:');
+  console.log(`Latitude : ${crd.latitude}`);
+  console.log(`Longitude: ${crd.longitude}`);
+  console.log(`More or less ${crd.accuracy} meters.`);
+
+  for (let i of restaurants) {
+    let distance = Math.sqrt(
+      (i.location.coordinates[0] - crd.longitude) ** 2 +
+        (i.location.coordinates[1] - crd.latitude) ** 2
+    );
+    distances.push({id: i._id, d: distance});
+  }
+  distances.sort((a, b) => a.d - b.d);
+
+  for (let k of distances) {
+    console.log(k);
+  }
+
+  let innerhtml = '';
+
+  for (let b of distances) {
+    for (let c of restaurants) {
+      if (b.id == c._id) {
+        innerhtml += `<tr> <th>${c.name}</th> <th>${c.address}</th> </tr>`;
+      }
+    }
+  }
+  table.innerHTML = innerhtml;
+}
+// Function to be called if an error occurs while retrieving location information
+function error(err) {
+  console.warn(`ERROR(${err.code}): ${err.message}`);
+}
+
+// Starts the location search
+navigator.geolocation.getCurrentPosition(success, error, options);
